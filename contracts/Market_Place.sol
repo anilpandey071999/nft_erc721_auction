@@ -58,7 +58,7 @@ contract MinddefContract {
 
     function openAution(uint256 _marketId,uint256 _bettingPrice) public {
         require(idToMarketItem[_marketId].autionTiming > block.timestamp,"Market_Contract: Auction should be open");
-        require(idToMarketItem[_marketId].autionBasePrice > _bettingPrice,"Market_Contract: Betting price can not be less then Auction base price");
+        require(idToMarketItem[_marketId].autionBasePrice < _bettingPrice,"Market_Contract: Betting price can not be less then Auction base price");
         require(MindDefToken(tokenContract).allowance(msg.sender,address(this)) > _bettingPrice,"Market_Contract: Need More Allowance");
         MindDefToken(tokenContract).transferFrom(msg.sender,address(this),_bettingPrice);
         idTobetingPrtice[_marketId].push(_bettingPrice);
