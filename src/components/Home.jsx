@@ -1,19 +1,5 @@
 import React from 'react'
-// import 'semantic-ui-css/semantic.min.css'
-import {
-    Button,
-    Container,
-    Grid,
-    Header,
-    Icon,
-    Image,
-    Item,
-    Label,
-    Menu,
-    Segment,
-    Step,
-    Table,
-  } from 'semantic-ui-react'
+
 const style = {
     h1: {
       marginTop: '3em',
@@ -34,7 +20,7 @@ const style = {
 function Home() {
     return(
         <div>
-          <Header as='h3' content='HEMO PAGE BITCH!!!' style={style.h3} textAlign='center' />
+          APP GAARA ME HOO!!
         </div>
     )
 }
