@@ -4,7 +4,7 @@ import Navbar from './components/NavBar';
 import AddNFT from "./components/AddNFT";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
   if (window.ethereum) {

@@ -24,7 +24,8 @@ contract MinddefContract {
         bool openForSell;
         bool sold;
         bool openForAuction;
-        uint256 autionTiming;
+        uint256 stratAutionTiming;
+        uint256 endAutionTiming;
         uint256 autionBasePrice;
     }
 
@@ -38,7 +39,8 @@ contract MinddefContract {
         uint256 _price,
         uint256 _autionBasePrice,
         bool _openForAuction,
-        uint256 _autionTiming,
+        uint256 _stratAutionTiming,
+        uint256 _endAutionTiming,
         string memory _uri
     ) public {
         MindDefnft(nftContract).mint(msg.sender, _uri);
@@ -50,14 +52,15 @@ contract MinddefContract {
             openForSell: false,
             sold: false,
             openForAuction: _openForAuction,
-            autionTiming:_autionTiming,
+            stratAutionTiming:_stratAutionTiming,
+            endAutionTiming:_endAutionTiming,
             autionBasePrice:_autionBasePrice
         });
         _totalNft.increment();
     }
 
     function openAution(uint256 _marketId,uint256 _bettingPrice) public {
-        require(idToMarketItem[_marketId].autionTiming > block.timestamp,"Market_Contract: Auction should be open");
+        require(idToMarketItem[_marketId].endAutionTiming > block.timestamp,"Market_Contract: Auction should be open");
         require(idToMarketItem[_marketId].autionBasePrice < _bettingPrice,"Market_Contract: Betting price can not be less then Auction base price");
         require(MindDefToken(tokenContract).allowance(msg.sender,address(this)) > _bettingPrice,"Market_Contract: Need More Allowance");
         MindDefToken(tokenContract).transferFrom(msg.sender,address(this),_bettingPrice);

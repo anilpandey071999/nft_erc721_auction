@@ -14,12 +14,24 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const MindDefToken = await hre.ethers.getContractFactory("MindDefToken");
+  const mindDefToken = await MindDefToken.deploy();
 
-  await greeter.deployed();
+  await mindDefToken.deployed()
 
-  console.log("Greeter deployed to:", greeter.address);
+  const MindDefnft = await hre.ethers.getContractFactory("MindDefnft");
+  const mindDefnft = await MindDefnft.deploy();
+
+  await mindDefnft.deployed()
+
+  const MinddefContract = await hre.ethers.getContractFactory("MinddefContract");
+  const minddefContract = await MinddefContract.deploy(mindDefnft.address,mindDefToken.address,"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+
+  await minddefContract.deployed();
+
+  console.log("Minddef NFT deployed to:", mindDefnft.address);
+  console.log("Minddef Token deployed to:", mindDefToken.address);
+  console.log("Minddef Market Place deployed to:", minddefContract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
