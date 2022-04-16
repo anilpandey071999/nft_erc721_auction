@@ -14,6 +14,7 @@ contract MinddefContract {
     address public owner;
     mapping(uint256 => MarketItem) public idToMarketItem;
     mapping(uint256 => uint256[]) public idTobetingPrtice;
+    // mapping(uint256 => mapping(address => uint256)) public idTobetingPrticse;
     mapping(uint256 => address[]) public idTobettingAddress;
 
     struct MarketItem {

@@ -1,14 +1,19 @@
 import { Form, Button, Container, Alert } from "react-bootstrap";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import { useState } from "react";
-import MarketPlaceABI from "../abis/MarketPlaceAbi"
-import { ethers } from "hardhat";
-
+import MarketPlaceABI from "../abis/MarketPlaceAbi";
+import { ethers } from "ethers";
+/**
+Minddef NFT deployed to: 0x0A014D93c1e7Bc1597B736B533Bb562E3bF88264
+Minddef Token deployed to: 0xC937f48De7890B5Fa05aef420A324A3EE030Cd13
+Minddef Market Place deployed to: 0x4F540d27370E2eF654c34531009f0F9FcC033448 
+*/
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
-const marketPlaceAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+const marketPlaceAddress = "0x4F540d27370E2eF654c34531009f0F9FcC033448";
 function AddNFT() {
   const [NFT_URI, setNFT_URI] = useState("");
   const [Error, setError] = useState("");
+  const [isError, setIsError] = useState(false);
   const [show, setShow] = useState(false);
   const [cheked, setCheked] = useState(false);
   const [formInput, updateFormInput] = useState({
@@ -34,10 +39,10 @@ function AddNFT() {
     } catch (error) {
       // console.log(error);
       setError(error);
-      setShow(true);
+      setIsError(true);
       setTimeout(() => {
         setError("");
-        setShow(false);
+        setIsError(false);
       }, 3000);
     }
     console.log("Hello MatherFucker King is Back");
@@ -49,41 +54,72 @@ function AddNFT() {
       price,
       description,
       autionBasePrice,
-      openForAuction,
       stratAutionTiming,
       endAutionTiming,
-      uri,
     } = formInput;
     if (!name || !description || !price) {
       setError("Provid Valid data");
-      setShow(true);
+      setIsError(true);
       setInterval(() => {
         setError("");
-        setShow(false);
-      }, 30000);
-    }else{
+        setIsError(false);
+      }, 3000);
+    } else {
       try {
-        console.log("formInput");
-        console.log(formInput);
+        // console.log("formInput");
+        // console.log(formInput);
         const data = JSON.stringify(formInput);
         const added = await client.add(data);
         console.log("data:-", data);
         console.log(added);
         const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-        const provider = new ethers.provider(window.ethers)
-        const signer = provider.getSigner()
-        // let contract = new ethers.Contract(marketPlaceAddress,MarketPlaceABI,signer)
-        
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const MarketPlaceInstance = new ethers.Contract(
+          marketPlaceAddress,
+          MarketPlaceABI,
+          signer
+          );
+          let a = await MarketPlaceInstance.idToMarketItem(0)
+        let addNftCollection;
+
+        cheked
+          ? (addNftCollection = await MarketPlaceInstance.addNftCollection(
+              price,
+              autionBasePrice,
+              cheked,
+              stratAutionTiming,
+              endAutionTiming,
+              url
+            ))
+          : (addNftCollection = await MarketPlaceInstance.addNftCollection(
+              price,
+              0,
+              cheked,
+              0,
+              0,
+              url
+            ));
+        // console.log(addNftCollection);
+        console.log("aa=? ",a)
+        setError(`${addNftCollection}`);
+        setShow(true);
       } catch (error) {
-        
+        setError(`${error}`);
+        setIsError(true);
+        setTimeout(() => {
+          setError("");
+          setIsError(false);
+        }, 3000);
       }
     }
-     
-    
   };
 
   return (
     <Container>
+      <Alert show={isError} variant="danger">
+        {Error}
+      </Alert>
       <Alert show={show} variant="success">
         {Error}
       </Alert>
@@ -191,7 +227,7 @@ function AddNFT() {
             <Form.Text>Asset Price in Eth</Form.Text>
           </Form.Group>
         )}
-        <Button onClick={()=>submitData()}>Submit</Button>
+        <Button onClick={() => submitData()}>Submit</Button>
       </Form>
     </Container>
   );
