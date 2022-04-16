@@ -4,12 +4,12 @@ import { useState } from "react";
 import MarketPlaceABI from "../abis/MarketPlaceAbi";
 import { ethers } from "ethers";
 /**
-Minddef NFT deployed to: 0x0A014D93c1e7Bc1597B736B533Bb562E3bF88264
-Minddef Token deployed to: 0xC937f48De7890B5Fa05aef420A324A3EE030Cd13
-Minddef Market Place deployed to: 0x4F540d27370E2eF654c34531009f0F9FcC033448 
+Minddef NFT deployed to: 0x1DB0400CF13b187f5463beea1E32f7221205BE0B
+Minddef Token deployed to: 0x3fA15435527f1d272e10D3e1C68bC622Ea2a5712
+Minddef Market Place deployed to: 0x07470D0B1080C3e11189cedC6041fA1396F33Bb3
 */
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
-const marketPlaceAddress = "0x4F540d27370E2eF654c34531009f0F9FcC033448";
+const marketPlaceAddress = "0x07470D0B1080C3e11189cedC6041fA1396F33Bb3";
 function AddNFT() {
   const [NFT_URI, setNFT_URI] = useState("");
   const [Error, setError] = useState("");
@@ -80,7 +80,6 @@ function AddNFT() {
           MarketPlaceABI,
           signer
           );
-          let a = await MarketPlaceInstance.idToMarketItem(0)
         let addNftCollection;
 
         cheked
@@ -101,17 +100,18 @@ function AddNFT() {
               url
             ));
         // console.log(addNftCollection);
-        console.log("aa=? ",a)
-        setError(`${addNftCollection}`);
+        // console.log("aa=? ",a)
+        setError(`${addNftCollection.hash}`);
         setShow(true);
       } catch (error) {
         setError(`${error}`);
         setIsError(true);
-        setTimeout(() => {
-          setError("");
-          setIsError(false);
-        }, 3000);
       }
+      setTimeout(() => {
+        setError("");
+        setShow(true);
+        setIsError(false);
+      }, 3000);
     }
   };
 

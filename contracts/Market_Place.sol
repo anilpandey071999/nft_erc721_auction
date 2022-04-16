@@ -50,7 +50,7 @@ contract MinddefContract {
             price: _price,
             seller: msg.sender,
             uri: _uri,
-            openForSell: false,
+            openForSell: true,
             sold: false,
             openForAuction: _openForAuction,
             stratAutionTiming:_stratAutionTiming,
