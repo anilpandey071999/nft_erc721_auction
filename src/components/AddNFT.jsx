@@ -1,9 +1,10 @@
-import { Form, Button, Container, Alert } from "react-bootstrap";
+import { Form, Button, Spinner, Container, Alert } from "react-bootstrap";
 import { create as ipfsHttpClient } from "ipfs-http-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MarketPlaceABI from "../abis/MarketPlaceAbi";
+import NFTABI from "../abis/NFTAbi";
 import { ethers } from "ethers";
-import {marketPlaceAddress} from '../addess'
+import { marketPlaceAddress, nftAddress } from "../addess";
 
 /**
 Minddef NFT deployed to: 0x16b7dc9A1089239292f926ffAecDAd0CB9a02ed4
@@ -12,6 +13,11 @@ Minddef Market Place deployed to: 0x5B960eb9632f9b221e7E3b88E5FE3406F98B602e
 */
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 function AddNFT() {
+  useEffect(() => {
+      getApprovel();
+  });
+  const [account, setAccount] = useState("");
+  const [loadingState, setLoadingState] = useState("loaded");
   const [NFT_URI, setNFT_URI] = useState("");
   const [Error, setError] = useState("");
   const [isError, setIsError] = useState(false);
@@ -27,6 +33,30 @@ function AddNFT() {
     endAutionTiming: "",
     uri: NFT_URI,
   });
+
+  const getApprovel = async () => {
+    console.log("Bye");
+    const [acc] = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    setAccount(acc);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const NFTInstance = new ethers.Contract(nftAddress, NFTABI, signer);
+    const checkAllowance = await NFTInstance.isApprovedForAll(
+      acc,
+      marketPlaceAddress
+    );
+    if (!checkAllowance) {
+      const approvaTx = await NFTInstance.setApprovalForAll(
+        marketPlaceAddress,
+        true
+      );
+      setLoadingState("Loading");
+      await approvaTx.wait();
+      setLoadingState("loaded");
+    }
+  };
 
   const onChange = async (e) => {
     try {
@@ -80,7 +110,7 @@ function AddNFT() {
           marketPlaceAddress,
           MarketPlaceABI,
           signer
-          );
+        );
         let addNftCollection;
 
         cheked
@@ -115,6 +145,8 @@ function AddNFT() {
       }, 3000);
     }
   };
+
+  if (loadingState === "Loading") return <Spinner animation="border" />;
 
   return (
     <Container>

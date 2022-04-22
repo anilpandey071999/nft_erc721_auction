@@ -91,18 +91,17 @@ contract MinddefContract {
         address from,
         address to,
         uint256 id,
-        uint256 amount,
-        uint256 _totalNfts
+        uint256 amount
     ) public {
         require(
-            idToMarketItem[_totalNfts].price <= amount,
+            idToMarketItem[id].price <= amount,
             "Market_Contract: Please pay listed amount"
         );
         ERC20(tokenContract).transferFrom(to, from, amount);
-        ERC721(nftContract).transferFrom(from, to, 1);
-        idToMarketItem[id - 1].seller = to;
-        idToMarketItem[id - 1].openForSell = false;
-        idToMarketItem[id - 1].sold = true;
+        ERC721(nftContract).transferFrom(from, to, id);
+        idToMarketItem[id].seller = to;
+        idToMarketItem[id].openForSell = false;
+        idToMarketItem[id].sold = true;
     }
 
     function getListedNft() public view returns (MarketItem[] memory) {

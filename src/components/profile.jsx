@@ -62,9 +62,7 @@ function Profile() {
     setNfts(items);
   };
 
-  const buyNFT = async () => {
-
-  }
+  
   if (nfts.length <= 0)
     return (
       <Container class="fs-1 text-center" style={{ width: "64rem" }}>
@@ -97,7 +95,7 @@ function Profile() {
                   ) : (
                     <Button
                       style={{ width: "10rem", verticalAlign: "middle" }}
-                      onClick={() => buyNFT()}
+                      onClick={() =>{}}
                     >
                       BUY
                     </Button>

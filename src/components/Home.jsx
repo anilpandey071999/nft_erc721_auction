@@ -7,23 +7,46 @@ import {
   Row,
   Card,
   ListGroup,
+  Spinner
 } from "react-bootstrap";
 import MarketPlaceABI from "../abis/MarketPlaceAbi";
 import TokenABI from "../abis/TokenAbi";
 import { ethers } from "ethers";
 import axios from "axios";
-import {marketPlaceAddress} from '../addess'
-
+import { marketPlaceAddress,tokenAddress } from "../addess";
 
 function Home() {
   const [account, setAccount] = useState("");
-  const [loadingState, setLoadingState] = useState("not-loaded");
+  const [loadingState, setLoadingState] = useState("loaded");
   const [nfts, setNfts] = useState([]);
   useEffect(() => {
     if (nfts <= 0) {
       getAll();
     }
   });
+  const buyNFT = async (nftId,price,seller) => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const TokenInstance = new ethers.Contract(tokenAddress,TokenABI,signer)
+    const checkAllowance = await TokenInstance.allowance(account,marketPlaceAddress)
+    // console.log(ethers.utils.parseEther("100"));
+    if(checkAllowance < ethers.utils.parseEther("100")){
+      const allowanceTx = await TokenInstance.approve(marketPlaceAddress,ethers.utils.parseEther("100"))
+      setLoadingState("Loading")
+      await allowanceTx.wait()
+      setLoadingState("loaded")
+    }
+    const MarketPlaceInstance = new ethers.Contract(
+      marketPlaceAddress,
+      MarketPlaceABI,
+      signer
+    );
+    const transeferFromTx = await MarketPlaceInstance.buynft(seller,account,nftId,ethers.utils.parseEther(price))
+    setLoadingState("Loading")
+    await transeferFromTx.wait()
+    setLoadingState("loaded")
+    // console.log(checkAllowance,await TokenInstance.allowance(account,marketPlaceAddress));
+  };
   const getAll = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
@@ -64,12 +87,15 @@ function Home() {
     setNfts(items);
   };
 
+  
   if (nfts.length <= 0)
     return (
       <Container class="fs-1 text-center" style={{ width: "64rem" }}>
         Market Place is Empty
       </Container>
     );
+
+  if(loadingState === "Loading") return <Spinner animation="border" />
   return (
     <div>
       <Container>
@@ -96,7 +122,7 @@ function Home() {
                   ) : (
                     <Button
                       style={{ width: "10rem", verticalAlign: "middle" }}
-                      onClick={() => "submitData()"}
+                      onClick={() => buyNFT(nft,i.price,i.seller)}
                     >
                       BUY
                     </Button>
