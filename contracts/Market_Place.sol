@@ -30,7 +30,11 @@ contract MinddefContract {
         uint256 autionBasePrice;
     }
 
-    constructor(address _nftContract, address _mindDefToken, address _owner) {
+    constructor(
+        address _nftContract,
+        address _mindDefToken,
+        address _owner
+    ) {
         nftContract = _nftContract;
         tokenContract = _mindDefToken;
         owner = _owner;
@@ -53,18 +57,32 @@ contract MinddefContract {
             openForSell: true,
             sold: false,
             openForAuction: _openForAuction,
-            stratAutionTiming:_stratAutionTiming,
-            endAutionTiming:_endAutionTiming,
-            autionBasePrice:_autionBasePrice
+            stratAutionTiming: _stratAutionTiming,
+            endAutionTiming: _endAutionTiming,
+            autionBasePrice: _autionBasePrice
         });
         _totalNft.increment();
     }
 
-    function openAution(uint256 _marketId,uint256 _bettingPrice) public {
-        require(idToMarketItem[_marketId].endAutionTiming > block.timestamp,"Market_Contract: Auction should be open");
-        require(idToMarketItem[_marketId].autionBasePrice < _bettingPrice,"Market_Contract: Betting price can not be less then Auction base price");
-        require(MindDefToken(tokenContract).allowance(msg.sender,address(this)) > _bettingPrice,"Market_Contract: Need More Allowance");
-        MindDefToken(tokenContract).transferFrom(msg.sender,address(this),_bettingPrice);
+    function openAution(uint256 _marketId, uint256 _bettingPrice) public {
+        require(
+            idToMarketItem[_marketId].endAutionTiming > block.timestamp,
+            "Market_Contract: Auction should be open"
+        );
+        require(
+            idToMarketItem[_marketId].autionBasePrice < _bettingPrice,
+            "Market_Contract: Betting price can not be less then Auction base price"
+        );
+        require(
+            MindDefToken(tokenContract).allowance(msg.sender, address(this)) >
+                _bettingPrice,
+            "Market_Contract: Need More Allowance"
+        );
+        MindDefToken(tokenContract).transferFrom(
+            msg.sender,
+            address(this),
+            _bettingPrice
+        );
         idTobetingPrtice[_marketId].push(_bettingPrice);
         idTobettingAddress[_marketId].push(msg.sender);
     }
@@ -76,26 +94,29 @@ contract MinddefContract {
         uint256 amount,
         uint256 _totalNfts
     ) public {
-        require(idToMarketItem[_totalNfts].price <= amount,"Market_Contract: Please pay listed amount");
-        ERC20(tokenContract).transferFrom(to,from,amount);
-        ERC721(nftContract).transferFrom(from, to,1);
-        idToMarketItem[id-1].seller = to;
+        require(
+            idToMarketItem[_totalNfts].price <= amount,
+            "Market_Contract: Please pay listed amount"
+        );
+        ERC20(tokenContract).transferFrom(to, from, amount);
+        ERC721(nftContract).transferFrom(from, to, 1);
+        idToMarketItem[id - 1].seller = to;
         idToMarketItem[id - 1].openForSell = false;
         idToMarketItem[id - 1].sold = true;
     }
 
-    function getListedNft() public view returns(MarketItem[] memory){
-        uint itemCount  = 0;
+    function getListedNft() public view returns (MarketItem[] memory) {
+        uint256 itemCount = 0;
         // uint totalItemCount = totalNft ;
-        uint currentIndex = 0;
+        uint256 currentIndex = 0;
         for (uint256 index = 0; index < _totalNft.current(); index++) {
-            if(idToMarketItem[index].openForSell){
+            if (idToMarketItem[index].openForSell) {
                 itemCount += 1;
             }
         }
         MarketItem[] memory items = new MarketItem[](itemCount);
         for (uint256 index = 0; index < _totalNft.current(); index++) {
-            if(idToMarketItem[index].openForSell){
+            if (idToMarketItem[index].openForSell) {
                 MarketItem storage currentItem = idToMarketItem[index];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -104,27 +125,29 @@ contract MinddefContract {
         return items;
     }
 
-     function getAllNft() public view returns(MarketItem[] memory){
-        uint itemCount  = 0;
-        uint currentIndex = 0;
+    function getAllNft() public view returns (MarketItem[] memory) {
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
         for (uint256 index = 0; index < _totalNft.current(); index++) {
-            if(idToMarketItem[index].seller == msg.sender){
+            if (idToMarketItem[index].seller == msg.sender) {
                 itemCount += 1;
             }
         }
         MarketItem[] memory items = new MarketItem[](itemCount);
-        if(itemCount > 0){
+        if (itemCount > 0) {
             for (uint256 index = 0; index < _totalNft.current(); index++) {
-                MarketItem storage currentItem = idToMarketItem[index];
-                items[currentIndex] = currentItem;
-                currentIndex += 1;
+                if (idToMarketItem[index].seller == msg.sender) {
+                    MarketItem storage currentItem = idToMarketItem[index];
+                    items[currentIndex] = currentItem;
+                    currentIndex += 1;
+                }
             }
         }
         return items;
     }
 
-    function listForSale(uint index,uint256 price) public {
-        require(index < _totalNft.current(),"Market_Contract: Invalid Index ");
+    function listForSale(uint256 index, uint256 price) public {
+        require(index < _totalNft.current(), "Market_Contract: Invalid Index ");
         idToMarketItem[index].openForSell = !idToMarketItem[index].openForSell;
         idToMarketItem[index].price = price;
     }

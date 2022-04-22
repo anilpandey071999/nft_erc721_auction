@@ -3,13 +3,14 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 import { useState } from "react";
 import MarketPlaceABI from "../abis/MarketPlaceAbi";
 import { ethers } from "ethers";
+import {marketPlaceAddress} from '../addess'
+
 /**
-Minddef NFT deployed to: 0x1DB0400CF13b187f5463beea1E32f7221205BE0B
-Minddef Token deployed to: 0x3fA15435527f1d272e10D3e1C68bC622Ea2a5712
-Minddef Market Place deployed to: 0x07470D0B1080C3e11189cedC6041fA1396F33Bb3
+Minddef NFT deployed to: 0x16b7dc9A1089239292f926ffAecDAd0CB9a02ed4
+Minddef Token deployed to: 0xc0BBDCD590b738A9f0DDe8d2B8775e18649115f7
+Minddef Market Place deployed to: 0x5B960eb9632f9b221e7E3b88E5FE3406F98B602e
 */
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
-const marketPlaceAddress = "0x07470D0B1080C3e11189cedC6041fA1396F33Bb3";
 function AddNFT() {
   const [NFT_URI, setNFT_URI] = useState("");
   const [Error, setError] = useState("");

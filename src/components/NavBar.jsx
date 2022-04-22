@@ -50,8 +50,11 @@ const Navbars = () => {
               <Nav.Link>
                 <Link to="/AddNFT">AddNFT</Link>
               </Nav.Link>
+              <Nav.Link>
+                <Link to="/Profile">Profile</Link>
+              </Nav.Link>
             </Nav>
-            <label>{account}</label>
+            <label>{account.length > 0 ? account : "Connect Wallet"}</label>
           </Navbar.Collapse>
         </Container>
       </Navbar>

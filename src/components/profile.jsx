@@ -9,13 +9,11 @@ import {
   ListGroup,
 } from "react-bootstrap";
 import MarketPlaceABI from "../abis/MarketPlaceAbi";
-import TokenABI from "../abis/TokenAbi";
 import { ethers } from "ethers";
 import axios from "axios";
-import {marketPlaceAddress} from '../addess'
+import {marketPlaceAddress,tokenAddress} from '../addess'
 
-
-function Home() {
+function Profile() {
   const [account, setAccount] = useState("");
   const [loadingState, setLoadingState] = useState("not-loaded");
   const [nfts, setNfts] = useState([]);
@@ -64,6 +62,9 @@ function Home() {
     setNfts(items);
   };
 
+  const buyNFT = async () => {
+
+  }
   if (nfts.length <= 0)
     return (
       <Container class="fs-1 text-center" style={{ width: "64rem" }}>
@@ -96,7 +97,7 @@ function Home() {
                   ) : (
                     <Button
                       style={{ width: "10rem", verticalAlign: "middle" }}
-                      onClick={() => "submitData()"}
+                      onClick={() => buyNFT()}
                     >
                       BUY
                     </Button>
@@ -111,4 +112,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Profile;
