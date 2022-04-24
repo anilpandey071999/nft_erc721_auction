@@ -103,24 +103,15 @@ function Home() {
 
   const placeAuction = async (nft) => {
     try {
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum
-      );
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
-      const TokenInstance = new ethers.Contract(
-        tokenAddress,
-        TokenABI,
-        signer
+      const TokenInstance = new ethers.Contract(tokenAddress, TokenABI, signer);
+      const checkAllowance = await TokenInstance.allowance(
+        account,
+        marketPlaceAddress
       );
-      const checkAllowance =
-        await TokenInstance.allowance(
-          account,
-          marketPlaceAddress
-        );
       // console.log(ethers.utils.parseEther("100"));
-      if (
-        checkAllowance < ethers.utils.parseEther("100")
-      ) {
+      if (checkAllowance < ethers.utils.parseEther("100")) {
         const allowanceTx = await TokenInstance.approve(
           marketPlaceAddress,
           ethers.utils.parseEther("100")
@@ -128,24 +119,23 @@ function Home() {
         setLoadingState("Loading");
         await allowanceTx.wait();
         setLoadingState("loaded");
-        setTimeout(()=>{},5000)
-        placeAuction(nft)
-      }else{
-      const MarketPlaceInstance = new ethers.Contract(
-        marketPlaceAddress,
-        MarketPlaceABI,
-        signer
-      );
-      let marketContract =
-        await MarketPlaceInstance.openAution(
+        setTimeout(() => {}, 5000);
+        placeAuction(nft);
+      } else {
+        const MarketPlaceInstance = new ethers.Contract(
+          marketPlaceAddress,
+          MarketPlaceABI,
+          signer
+        );
+        let marketContract = await MarketPlaceInstance.openAution(
           nft,
           ethers.utils.parseEther(`${auctionPrice}`)
         );
-      setLoadingState("Loading");
-      await marketContract.wait();
-      setLoadingState("loaded");
-      setShow(true);
-}
+        setLoadingState("Loading");
+        await marketContract.wait();
+        setLoadingState("loaded");
+        setShow(true);
+      }
       setTimeout(() => {
         setShow(false);
         setError("");
@@ -157,13 +147,15 @@ function Home() {
         setError("");
       }, 3000);
     }
-  }
+  };
 
   if (nfts.length <= 0)
     return (
-      <Container class="fs-1 text-center" style={{ width: "64rem" }}>
-        Market Place is Empty
-      </Container>
+      <div class="fs-1">
+        <Container class="text-center" style={{ width: "64rem" ,padding: "10rem" }}>
+          Market Place is Empty
+        </Container>
+      </div>
     );
 
   if (loadingState === "Loading") return <Spinner animation="border" />;
@@ -211,7 +203,7 @@ function Home() {
                       />
                       <Button
                         style={{ width: "10rem", verticalAlign: "middle" }}
-                        onClick={()=>placeAuction(nft)}
+                        onClick={() => placeAuction(nft)}
                       >
                         Place in auction
                       </Button>

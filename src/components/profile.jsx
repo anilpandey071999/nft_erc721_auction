@@ -107,9 +107,11 @@ function Profile() {
   if (loadingState === "Loading") return <Spinner animation="border" />;
   if (nfts.length <= 0)
     return (
-      <Container class="fs-1 text-center" style={{ width: "64rem" }}>
-        Market Place is Empty
-      </Container>
+      <div class="fs-1">
+        <Container class="text-center" style={{ width: "64rem" ,padding: "10rem" }}>
+          Profile is Empty
+        </Container>
+      </div>
     );
   return (
     <div>
