@@ -29,9 +29,9 @@ async function main() {
 
   await minddefContract.deployed();
 
-  console.log("const marketPlaceAddress =", minddefContract.address);
-  console.log("const tokenAddress =", mindDefToken.address);
-  console.log("const nftAddress =", mindDefnft.address);
+  console.log('const marketPlaceAddress ="', minddefContract.address,'"');;
+  console.log('const tokenAddress ="', mindDefToken.address,'"');;
+  console.log('const nftAddress ="', mindDefnft.address,'"');
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -79,9 +79,22 @@ const marketPlace = [
         internalType: "uint256",
         name: "amount",
         type: "uint256",
-      }
+      },
     ],
     name: "buynft",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_marketId",
+        type: "uint256",
+      },
+    ],
+    name: "endAution",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

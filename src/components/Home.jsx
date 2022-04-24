@@ -4,47 +4,60 @@ import {
   Button,
   Container,
   Alert,
+  Form,
   Row,
   Card,
-  ListGroup,
-  Spinner
+  Spinner,
 } from "react-bootstrap";
 import MarketPlaceABI from "../abis/MarketPlaceAbi";
 import TokenABI from "../abis/TokenAbi";
 import { ethers } from "ethers";
 import axios from "axios";
-import { marketPlaceAddress,tokenAddress } from "../addess";
+import { marketPlaceAddress, tokenAddress } from "../addess";
 
 function Home() {
   const [account, setAccount] = useState("");
   const [loadingState, setLoadingState] = useState("loaded");
   const [nfts, setNfts] = useState([]);
+  const [Error, setError] = useState("");
+  const [auctionPrice, setAuction] = useState(0);
   useEffect(() => {
     if (nfts <= 0) {
       getAll();
     }
   });
-  const buyNFT = async (nftId,price,seller) => {
+  const buyNFT = async (nftId, price, seller) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    const TokenInstance = new ethers.Contract(tokenAddress,TokenABI,signer)
-    const checkAllowance = await TokenInstance.allowance(account,marketPlaceAddress)
+    const TokenInstance = new ethers.Contract(tokenAddress, TokenABI, signer);
+    const checkAllowance = await TokenInstance.allowance(
+      account,
+      marketPlaceAddress
+    );
     // console.log(ethers.utils.parseEther("100"));
-    if(checkAllowance < ethers.utils.parseEther("100")){
-      const allowanceTx = await TokenInstance.approve(marketPlaceAddress,ethers.utils.parseEther("100"))
-      setLoadingState("Loading")
-      await allowanceTx.wait()
-      setLoadingState("loaded")
+    if (checkAllowance < ethers.utils.parseEther("100")) {
+      const allowanceTx = await TokenInstance.approve(
+        marketPlaceAddress,
+        ethers.utils.parseEther("100")
+      );
+      setLoadingState("Loading");
+      await allowanceTx.wait();
+      setLoadingState("loaded");
     }
     const MarketPlaceInstance = new ethers.Contract(
       marketPlaceAddress,
       MarketPlaceABI,
       signer
     );
-    const transeferFromTx = await MarketPlaceInstance.buynft(seller,account,nftId,ethers.utils.parseEther(price))
-    setLoadingState("Loading")
-    await transeferFromTx.wait()
-    setLoadingState("loaded")
+    const transeferFromTx = await MarketPlaceInstance.buynft(
+      seller,
+      account,
+      nftId,
+      ethers.utils.parseEther(price)
+    );
+    setLoadingState("Loading");
+    await transeferFromTx.wait();
+    setLoadingState("loaded");
     // console.log(checkAllowance,await TokenInstance.allowance(account,marketPlaceAddress));
   };
   const getAll = async () => {
@@ -69,15 +82,15 @@ function Home() {
           nftID: parseInt(i.nftID),
           name: meta.data.name,
           description: meta.data.description,
-          price: meta.data.price,
+          price: i.price.toString(),
           seller: i.seller,
           uri: meta.data.uri,
-          openForSell: meta.data.openForSell,
-          sold: meta.data.sold,
-          openForAuction: meta.data.openForAuction,
-          stratAutionTiming: meta.data.stratAutionTiming,
-          endAutionTiming: meta.data.endAutionTiming,
-          autionBasePrice: meta.data.autionBasePrice,
+          openForSell: i.openForSell,
+          sold: i.sold,
+          openForAuction: i.openForAuction,
+          stratAutionTiming: i.stratAutionTiming,
+          endAutionTiming: i.endAutionTiming,
+          autionBasePrice: i.autionBasePrice,
         };
         console.log("Items->>", item);
         return item;
@@ -87,7 +100,6 @@ function Home() {
     setNfts(items);
   };
 
-  
   if (nfts.length <= 0)
     return (
       <Container class="fs-1 text-center" style={{ width: "64rem" }}>
@@ -95,9 +107,12 @@ function Home() {
       </Container>
     );
 
-  if(loadingState === "Loading") return <Spinner animation="border" />
+  if (loadingState === "Loading") return <Spinner animation="border" />;
   return (
     <div>
+      <Alert show={Error.length !== 0} variant="danger">
+        {Error}
+      </Alert>
       <Container>
         <Row md={4}>
           {nfts.map((i, nft) => (
@@ -111,8 +126,65 @@ function Home() {
                 <Card.Body>
                   <Card.Title>{i.name}</Card.Title>
                   <Card.Text>{i.description}</Card.Text>
-                  <Card.Title>Price: {i.price} MDF</Card.Title>
-                  {parseInt(account) === parseInt(i.seller) ? (
+                  <Card.Title>
+                    Price: {i.openForAuction ? i.autionBasePrice.toString() : i.price} MDF
+                  </Card.Title>
+                  {i.openForAuction ? (
+                    <div>
+                      <Form.Control
+                        type="text"
+                        placeholder="Price"
+                        onChange={async (e) => {
+                          if (parseInt(e.target.value) === 0) {
+                            setError("Price can't be 0");
+                            setTimeout(() => {
+                              setError("");
+                            }, 3000);
+                          } else {
+                            setAuction(parseInt(e.target.value));
+                          }
+                        }}
+                      />
+                      <Button
+                        style={{ width: "10rem", verticalAlign: "middle" }}
+                        onClick={async () => {
+                         try {
+                           
+                         const provider = new ethers.providers.Web3Provider(
+                            window.ethereum
+                          );
+                          const signer = provider.getSigner();
+                          const MarketPlaceInstance = new ethers.Contract(
+                            marketPlaceAddress,
+                            MarketPlaceABI,
+                            signer
+                          );
+                          let marketContract =
+                            await MarketPlaceInstance.openAution(
+                              nft,
+                              ethers.utils.parseEther(`${auctionPrice}`)
+                            );
+                          setLoadingState("Loading");
+                          await marketContract.wait();
+                          setLoadingState("loaded");
+                          setError(marketContract.hash);
+
+                          setTimeout(() => {
+                            setError("");
+                          }, 3000);
+                        } catch (error) {
+                          setError(`${error.message}`);
+
+                          setTimeout(() => {
+                            setError("");
+                          }, 3000);
+                        } 
+                        }}
+                      >
+                        Place in auction
+                      </Button>
+                    </div>
+                  ) : parseInt(account) === parseInt(i.seller) ? (
                     <Button
                       style={{ width: "10rem", verticalAlign: "middle" }}
                       onClick={() => "submitData()"}
@@ -122,7 +194,7 @@ function Home() {
                   ) : (
                     <Button
                       style={{ width: "10rem", verticalAlign: "middle" }}
-                      onClick={() => buyNFT(nft,i.price,i.seller)}
+                      onClick={() => buyNFT(nft, i.price, i.seller)}
                     >
                       BUY
                     </Button>
