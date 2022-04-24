@@ -1,4 +1,4 @@
-const marketPlaceAddress = "0x1fB0a22aa042e181253df91907c4BE9F71e90959";
-const tokenAddress = "0xeC2245E7de78ac603259BD8d11332E874d521567";
-const nftAddress = "0x0C16777b4ADEA9880E731129223d9E755c9615A7";
+const marketPlaceAddress ="0xD59aA888D9dA7887FB723dE9201eEC0Bb8Aea0D8"
+const tokenAddress ="0x5Cc434acb4742Fc43ade7B9d9b1900c7Ff2e50cA"
+const nftAddress ="0x153b9C0D48e81D72993aD31eF168acFE07901bC1"
 export { marketPlaceAddress, tokenAddress, nftAddress };

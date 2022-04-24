@@ -18,6 +18,7 @@ import { marketPlaceAddress, tokenAddress } from "../addess";
 function Home() {
   const [account, setAccount] = useState("");
   const [loadingState, setLoadingState] = useState("loaded");
+  const [show, setShow] = useState(false);
   const [nfts, setNfts] = useState([]);
   const [Error, setError] = useState("");
   const [auctionPrice, setAuction] = useState(0);
@@ -100,6 +101,64 @@ function Home() {
     setNfts(items);
   };
 
+  const placeAuction = async (nft) => {
+    try {
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum
+      );
+      const signer = provider.getSigner();
+      const TokenInstance = new ethers.Contract(
+        tokenAddress,
+        TokenABI,
+        signer
+      );
+      const checkAllowance =
+        await TokenInstance.allowance(
+          account,
+          marketPlaceAddress
+        );
+      // console.log(ethers.utils.parseEther("100"));
+      if (
+        checkAllowance < ethers.utils.parseEther("100")
+      ) {
+        const allowanceTx = await TokenInstance.approve(
+          marketPlaceAddress,
+          ethers.utils.parseEther("100")
+        );
+        setLoadingState("Loading");
+        await allowanceTx.wait();
+        setLoadingState("loaded");
+        setTimeout(()=>{},5000)
+        placeAuction(nft)
+      }else{
+      const MarketPlaceInstance = new ethers.Contract(
+        marketPlaceAddress,
+        MarketPlaceABI,
+        signer
+      );
+      let marketContract =
+        await MarketPlaceInstance.openAution(
+          nft,
+          ethers.utils.parseEther(`${auctionPrice}`)
+        );
+      setLoadingState("Loading");
+      await marketContract.wait();
+      setLoadingState("loaded");
+      setShow(true);
+}
+      setTimeout(() => {
+        setShow(false);
+        setError("");
+      }, 3000);
+    } catch (error) {
+      setError(`${error.message}`);
+
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+    }
+  }
+
   if (nfts.length <= 0)
     return (
       <Container class="fs-1 text-center" style={{ width: "64rem" }}>
@@ -111,6 +170,9 @@ function Home() {
   return (
     <div>
       <Alert show={Error.length !== 0} variant="danger">
+        {Error}
+      </Alert>
+      <Alert show={show} variant="success">
         {Error}
       </Alert>
       <Container>
@@ -127,7 +189,9 @@ function Home() {
                   <Card.Title>{i.name}</Card.Title>
                   <Card.Text>{i.description}</Card.Text>
                   <Card.Title>
-                    Price: {i.openForAuction ? i.autionBasePrice.toString() : i.price} MDF
+                    Price:{" "}
+                    {i.openForAuction ? i.autionBasePrice.toString() : i.price}{" "}
+                    MDF
                   </Card.Title>
                   {i.openForAuction ? (
                     <div>
@@ -147,39 +211,7 @@ function Home() {
                       />
                       <Button
                         style={{ width: "10rem", verticalAlign: "middle" }}
-                        onClick={async () => {
-                         try {
-                           
-                         const provider = new ethers.providers.Web3Provider(
-                            window.ethereum
-                          );
-                          const signer = provider.getSigner();
-                          const MarketPlaceInstance = new ethers.Contract(
-                            marketPlaceAddress,
-                            MarketPlaceABI,
-                            signer
-                          );
-                          let marketContract =
-                            await MarketPlaceInstance.openAution(
-                              nft,
-                              ethers.utils.parseEther(`${auctionPrice}`)
-                            );
-                          setLoadingState("Loading");
-                          await marketContract.wait();
-                          setLoadingState("loaded");
-                          setError(marketContract.hash);
-
-                          setTimeout(() => {
-                            setError("");
-                          }, 3000);
-                        } catch (error) {
-                          setError(`${error.message}`);
-
-                          setTimeout(() => {
-                            setError("");
-                          }, 3000);
-                        } 
-                        }}
+                        onClick={()=>placeAuction(nft)}
                       >
                         Place in auction
                       </Button>

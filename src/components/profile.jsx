@@ -31,6 +31,7 @@ function Profile() {
       method: "eth_requestAccounts",
     });
     setAccount(acc);
+    console.log("TIme", 1650786667 <= 1540689264363);
     const MarketPlaceInstance = new ethers.Contract(
       marketPlaceAddress,
       MarketPlaceABI,
@@ -51,12 +52,12 @@ function Profile() {
           uri: meta.data.uri,
           openForSell: i.openForSell,
           sold: i.sold,
-          openForAuction: meta.data.openForAuction,
-          stratAutionTiming: meta.data.stratAutionTiming,
-          endAutionTiming: meta.data.endAutionTiming,
-          autionBasePrice: meta.data.autionBasePrice,
+          openForAuction: i.openForAuction,
+          stratAutionTiming: parseInt(i.stratAutionTiming),
+          endAutionTiming: parseInt(i.endAutionTiming),
+          autionBasePrice: parseInt(i.autionBasePrice),
         };
-        console.log("Items->>", item);
+        // console.log("Items->>", item,parseInt(i.endAutionTiming) <= parseInt(Date.now().toString().slice(0,10)),parseInt(i.endAutionTiming),Date.now().toString().slice(0,10));
         return item;
       })
     );
@@ -66,20 +67,38 @@ function Profile() {
 
   const listingAndDeListing = async (nftId, price) => {
     try {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const MarketPlaceInstance = new ethers.Contract(
-      marketPlaceAddress,
-      MarketPlaceABI,
-      signer
-    );
-    let marketContract = await MarketPlaceInstance.listForSale(
-      nftId,
-      newPrice === 0 ? price : newPrice
-    );
-    setLoadingState("Loading");
-    await marketContract.wait();
-    setLoadingState("not-loaded");
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const MarketPlaceInstance = new ethers.Contract(
+        marketPlaceAddress,
+        MarketPlaceABI,
+        signer
+      );
+      let marketContract = await MarketPlaceInstance.listForSale(
+        nftId,
+        newPrice === 0 ? price : newPrice
+      );
+      setLoadingState("Loading");
+      await marketContract.wait();
+      setLoadingState("not-loaded");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const endAution = async (nftId) => {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const MarketPlaceInstance = new ethers.Contract(
+        marketPlaceAddress,
+        MarketPlaceABI,
+        signer
+      );
+      let marketContract = await MarketPlaceInstance.endAution(nftId);
+      setLoadingState("Loading");
+      await marketContract.wait();
+      setLoadingState("not-loaded");
     } catch (error) {
       console.log(error);
     }
@@ -107,20 +126,41 @@ function Profile() {
                 <Card.Body>
                   <Card.Title>{i.name}</Card.Title>
                   <Card.Text>{i.openForSell.toString()}</Card.Text>
-                  <Card.Title>Price: {i.price} MDF</Card.Title>
-                  <Form.Control
-                    type="text"
-                    placeholder="New lIsting Price"
-                    onChange={(e) => {
-                      setNewPrice(e.target.value);
-                    }}
-                  />
-                  <Button
-                    style={{ width: "10rem", verticalAlign: "middle" }}
-                    onClick={() => listingAndDeListing(nft, i.price)}
-                  >
-                    {i.openForSell ? "DeList From Sell" : "List For Sell"}
-                  </Button>
+                  {i.openForAuction ? (
+                    <div>
+                      <Card.Title>
+                        Aution starting Price: {i.autionBasePrice} MDF
+                      </Card.Title>
+                      {i.endAutionTiming <=
+                      parseInt(Date.now().toString().slice(0, 10)) ? (
+                        <Button
+                          style={{ width: "10rem", verticalAlign: "middle" }}
+                          onClick={() => endAution(nft)}
+                        >
+                          Declared Results
+                        </Button>
+                      ) : (
+                        "Auction is Still going On"
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <Card.Title>Price: {i.price} MDF</Card.Title>
+                      <Form.Control
+                        type="text"
+                        placeholder="New lIsting Price"
+                        onChange={(e) => {
+                          setNewPrice(e.target.value);
+                        }}
+                      />
+                      <Button
+                        style={{ width: "10rem", verticalAlign: "middle" }}
+                        onClick={() => listingAndDeListing(nft, i.price)}
+                      >
+                        {i.openForSell ? "DeList From Sell" : "List For Sell"}
+                      </Button>
+                    </div>
+                  )}
                 </Card.Body>
               </Card>
             </Container>

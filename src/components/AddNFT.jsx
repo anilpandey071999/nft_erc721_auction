@@ -13,9 +13,9 @@ Minddef Market Place deployed to: 0x5B960eb9632f9b221e7E3b88E5FE3406F98B602e
 */
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 function AddNFT() {
-  useEffect(() => {
-      getApprovel();
-  });
+  // useEffect(() => {
+  //     getApprovel();
+  // });
   const [account, setAccount] = useState("");
   const [loadingState, setLoadingState] = useState("loaded");
   const [NFT_URI, setNFT_URI] = useState("");
@@ -132,8 +132,12 @@ function AddNFT() {
             ));
         // console.log(addNftCollection);
         // console.log("aa=? ",a)
+        setLoadingState("Loading");
+        await addNftCollection.wait()
+      setLoadingState("loaded");
         setError(`${addNftCollection.hash}`);
         setShow(true);
+        getApprovel()
       } catch (error) {
         setError(`${error}`);
         setIsError(true);

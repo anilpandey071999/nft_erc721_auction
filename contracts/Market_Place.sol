@@ -92,44 +92,40 @@ contract MinddefContract {
             idToMarketItem[_marketId].endAutionTiming < block.timestamp,
             "Market_Contract: Auction should be open"
         );
-        // require(
-        //     idToMarketItem[_marketId].autionBasePrice < _bettingPrice,
-        //     "Market_Contract: Betting price can not be less then Auction base price"
-        // );
-        // require(
-        //     MindDefToken(tokenContract).allowance(msg.sender, address(this)) >
-        //         _bettingPrice,
-        //     "Market_Contract: Need More Allowance"
-        // );
-        uint256 highestBider = 0;
-        for (
-            uint256 index = idTobetingPrtice[_marketId].length - 1;
-            index > 0;
-            index--
-        ) {
-            if (
-                idTobetingPrtice[_marketId][index] >
-                idTobetingPrtice[_marketId][index - 1]
+        if (idTobetingPrtice[_marketId].length != 0) {
+            uint256 highestBider = 0;
+            for (
+                uint256 index = idTobetingPrtice[_marketId].length - 1;
+                index > 0;
+                index--
             ) {
-                highestBider = index;
+                if (
+                    idTobetingPrtice[_marketId][index] >
+                    idTobetingPrtice[_marketId][index - 1]
+                ) {
+                    highestBider = index;
+                }
             }
+
+            ERC20(tokenContract).transfer(
+                idToMarketItem[_marketId].seller,
+                idTobetingPrtice[_marketId][highestBider]
+            );
+            ERC721(nftContract).transferFrom(
+                idToMarketItem[_marketId].seller,
+                idTobettingAddress[_marketId][highestBider],
+                _marketId
+            );
+            idToMarketItem[_marketId].seller = idTobettingAddress[_marketId][
+                highestBider
+            ];
+            idToMarketItem[_marketId].openForSell = false;
+            idToMarketItem[_marketId].openForAuction = false;
+            idToMarketItem[_marketId].sold = true;
+        }else{
+            idToMarketItem[_marketId].openForAuction = false;
         }
 
-        ERC20(tokenContract).transferFrom(
-            address(this),
-            idToMarketItem[_marketId].seller,
-            idTobetingPrtice[_marketId][highestBider]
-        );
-        ERC721(nftContract).transferFrom(
-            idToMarketItem[_marketId].seller,
-            idTobettingAddress[_marketId][highestBider],
-            _marketId
-        );
-        idToMarketItem[_marketId].seller = idTobettingAddress[_marketId][
-            highestBider
-        ];
-        idToMarketItem[_marketId].openForSell = false;
-        idToMarketItem[_marketId].sold = true;
     }
 
     function buynft(
