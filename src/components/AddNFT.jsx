@@ -24,6 +24,7 @@ function AddNFT() {
   const [show, setShow] = useState(false);
   const [cheked, setCheked] = useState(false);
   const [formInput, updateFormInput] = useState({
+    palindromeString: "",
     name: "",
     price: "",
     description: "",
@@ -81,6 +82,7 @@ function AddNFT() {
 
   const submitData = async () => {
     const {
+      palindromeString,
       name,
       price,
       description,
@@ -120,7 +122,8 @@ function AddNFT() {
               cheked,
               stratAutionTiming,
               endAutionTiming,
-              url
+              url,
+              palindromeString
             ))
           : (addNftCollection = await MarketPlaceInstance.addNftCollection(
               price,
@@ -128,16 +131,17 @@ function AddNFT() {
               cheked,
               0,
               0,
-              url
+              url,
+              palindromeString
             ));
         // console.log(addNftCollection);
         // console.log("aa=? ",a)
         setLoadingState("Loading");
-        await addNftCollection.wait()
-      setLoadingState("loaded");
+        await addNftCollection.wait();
+        setLoadingState("loaded");
         setError(`${addNftCollection.hash}`);
         setShow(true);
-        getApprovel()
+        getApprovel();
       } catch (error) {
         setError(`${error}`);
         setIsError(true);
@@ -161,6 +165,19 @@ function AddNFT() {
         {Error}
       </Alert>
       <Form>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>palindromeString</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="palindromeString"
+            onChange={(e) =>
+              updateFormInput({
+                ...formInput,
+                palindromeString: e.target.value,
+              })
+            }
+          />
+        </Form.Group>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Name</Form.Label>
           <Form.Control

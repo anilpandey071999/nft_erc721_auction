@@ -23,6 +23,25 @@ const marketPlace = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "_str",
+        type: "string",
+      },
+    ],
+    name: "Palindrome",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_price",
         type: "uint256",
@@ -50,6 +69,11 @@ const marketPlace = [
       {
         internalType: "string",
         name: "_uri",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_palindromeString",
         type: "string",
       },
     ],

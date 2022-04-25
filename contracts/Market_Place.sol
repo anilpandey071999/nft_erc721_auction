@@ -40,14 +40,41 @@ contract MinddefContract {
         owner = _owner;
     }
 
+    function reverse(string memory _str) internal pure returns (string memory) {
+        bytes memory str = bytes(_str);
+        string memory tmp = new string(str.length);
+        bytes memory _reverse = bytes(tmp);
+
+        for (uint256 i = 0; i < str.length; i++) {
+            _reverse[str.length - i - 1] = str[i];
+        }
+
+        return string(_reverse);
+    }
+
+    function compare(string memory a, string memory b)
+        internal
+        pure
+        returns (bool)
+    {
+        return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
+    }
+
+    function Palindrome(string memory _str) public pure returns (bool) {
+        string memory rev = reverse(_str);
+        return compare(rev, _str);
+    }
+
     function addNftCollection(
         uint256 _price,
         uint256 _autionBasePrice,
         bool _openForAuction,
         uint256 _stratAutionTiming,
         uint256 _endAutionTiming,
-        string memory _uri
+        string memory _uri,
+        string memory _palindromeString
     ) public {
+        require(Palindrome(_palindromeString),"String is not palindrome");
         MindDefnft(nftContract).mint(msg.sender, _uri);
         idToMarketItem[_totalNft.current()] = MarketItem({
             nftID: _totalNft.current(),
@@ -122,10 +149,9 @@ contract MinddefContract {
             idToMarketItem[_marketId].openForSell = false;
             idToMarketItem[_marketId].openForAuction = false;
             idToMarketItem[_marketId].sold = true;
-        }else{
+        } else {
             idToMarketItem[_marketId].openForAuction = false;
         }
-
     }
 
     function buynft(
